@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fehm-e-Quran II Final Term Quiz Bank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: '#0F172A',
+            teal: '#14B8A6',
+            offwhite: '#F8FAFC',
+            amber: '#F59E0B',
+            violet: '#8B5CF6'
+          },
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+            urdu: ['Noto Nastaliq Urdu', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .light .glass {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-offwhite font-poppins min-h-screen transition-colors duration-300 light:bg-offwhite light:text-slate-900">
+
+  <!-- Top Navbar -->
+  <header class="sticky top-0 z-50 glass border-b border-slate-700/50 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3 space-x-reverse">
+        <div class="w-10 h-10 rounded-xl bg-teal flex items-center justify-center font-bold text-navy text-xl shadow-lg shadow-teal/20">📖</div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">فہم قرآن 2 - Final Term</h1>
+          <p class="text-xs text-slate-400">MCQs Database & Quiz Engine</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg text-sm border border-slate-700/50 flex items-center gap-2">
+          <span>⏱️</span>
+          <span id="timer-display" class="font-mono font-semibold text-amber">00:00</span>
+        </div>
+        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber transition">
+          🌙
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+    <!-- Sidebar Controls -->
+    <aside class="lg:col-span-1 space-y-4">
+      <div class="glass p-5 rounded-2xl space-y-4">
+        <h2 class="font-bold text-teal flex items-center gap-2">⚙️ Quiz Controls</h2>
+        
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-400">Select Mode</label>
+          <select id="quiz-mode" onchange="changeMode()" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-teal outline-none">
+            <option value="practice">Practice Mode (Instant Feedback)</option>
+            <option value="exam">Exam Mode (Timed / Final Score)</option>
+            <option value="sequential">Sequential Learning Mode</option>
+            <option value="random">Random Question Stream</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-400">Quick Test Selector</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="startQuickQuiz(10)" class="bg-slate-800 hover:bg-teal hover:text-navy p-2 rounded-lg text-xs font-semibold border border-slate-700 transition">10 MCQs</button>
+            <button onclick="startQuickQuiz(20)" class="bg-slate-800 hover:bg-teal hover:text-navy p-2 rounded-lg text-xs font-semibold border border-slate-700 transition">20 MCQs</button>
+            <button onclick="startQuickQuiz(50)" class="bg-slate-800 hover:bg-teal hover:text-navy p-2 rounded-lg text-xs font-semibold border border-slate-700 transition">50 MCQs</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-400">Jump To Question</label>
+          <select id="question-dropdown" onchange="jumpToQuestion(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-teal outline-none max-h-40">
+          </select>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-700/50">
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" id="shuffle-options" onchange="renderQuestion()" class="accent-teal rounded">
+            <span>Shuffle Options (A–D)</span>
+          </label>
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" id="filter-bookmarks" onchange="toggleBookmarkFilter()" class="accent-amber rounded">
+            <span>Show Bookmarked Only (<span id="bookmark-count">0</span>)</span>
+          </label>
+        </div>
+
+        <button onclick="shuffleCurrentSet()" class="w-full bg-violet/20 hover:bg-violet/30 text-violet border border-violet/40 p-2.5 rounded-xl font-medium text-sm transition">
+          🔀 Shuffle Questions
+        </button>
+      </div>
+
+      <!-- Dashboard Progress -->
+      <div class="glass p-5 rounded-2xl space-y-3">
+        <h2 class="font-bold text-amber flex items-center gap-2">📊 Score Tracker</h2>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div class="text-xs text-slate-400">Attempted</div>
+            <div id="stat-attempted" class="text-xl font-bold text-teal">0</div>
+          </div>
+          <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div class="text-xs text-slate-400">Score</div>
+            <div id="stat-score" class="text-xl font-bold text-amber">0%</div>
+          </div>
+        </div>
+        <button onclick="reviewWrongAnswers()" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 p-2 rounded-lg text-xs font-semibold transition">
+          ⚠️ Review Wrong Answers (<span id="wrong-count">0</span>)
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Quiz Workspace -->
+    <section class="lg:col-span-3 space-y-6">
+      
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700">
+        <div id="progress-bar" class="bg-gradient-to-r from-teal via-violet to-amber h-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="glass p-6 md:p-8 rounded-3xl relative shadow-2xl min-h-[380px] flex flex-col justify-between">
+        
+        <div>
+          <div class="flex justify-between items-center mb-6">
+            <span id="question-tag" class="px-3 py-1 rounded-full text-xs font-semibold bg-teal/20 text-teal border border-teal/30">
+              Question 1
+            </span>
+            <button id="bookmark-btn" onclick="toggleBookmark()" class="text-2xl hover:scale-110 transition">
+              🔖
+            </button>
+          </div>
+
+          <!-- Urdu Question Text -->
+          <div id="question-text" class="font-urdu text-xl md:text-2xl leading-loose mb-8 text-right font-medium">
+            Loading question...
+          </div>
+
+          <!-- Options Grid -->
+          <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Dynamic Options -->
+          </div>
+        </div>
+
+        <!-- Explanation Block -->
+        <div id="explanation-box" class="hidden mt-6 p-4 rounded-xl bg-slate-800/80 border border-slate-700 text-sm space-y-1">
+          <span class="font-bold text-amber">💡 Explanation / Reference:</span>
+          <p id="explanation-text" class="font-urdu text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Card Footer Navigation -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-700/50">
+          <button id="show-answer-btn" onclick="toggleAnswer()" class="bg-slate-800 hover:bg-slate-700 text-xs md:text-sm px-4 py-2.5 rounded-xl border border-slate-700 font-semibold transition">
+            👁️ Show Answer
+          </button>
+
+          <div class="flex gap-3">
+            <button onclick="navigateQuestion(-1)" class="bg-slate-800 hover:bg-teal hover:text-navy px-5 py-2.5 rounded-xl font-semibold text-sm border border-slate-700 transition">
+              Previous
+            </button>
+            <button onclick="navigateQuestion(1)" class="bg-teal hover:bg-teal/80 text-navy px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-teal/20 transition">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcut Helper Bar -->
+      <div class="text-xs text-slate-500 flex flex-wrap gap-4 justify-center pt-2">
+        <span>⌨️ Shortcuts:</span>
+        <span><kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">←</kbd> Next</span>
+        <span><kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">→</kbd> Prev</span>
+        <span><kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">1-4</kbd> Options</span>
+        <span><kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">Space</kbd> Toggle Answer</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Full Raw MCQ Dataset embedded directly from the source document
+    const rawData = [
+      { id: 1, question: "لِلَّهِ يَفْعَلُ مَا يَشَاءُ کا مفہوم کیا ہے؟", options: ["اللہ ہر چیز کو دیکھتا ہے", "اللہ جو چاہتا ہے کرتا ہے", "اللہ صرف انسانوں کو پیدا کرتا ہے", "اللہ صرف زمین کا مالک ہے"], answer: 1 },
+      { id: 2, question: "يُنْبِتُ لَكُم بِهِ الزَّرْعَ کا ترجمہ کیا ہے؟", options: ["وہ تمہیں رزق دیتا ہے", "وہ تمہارے لیے کھیتی اگاتا ہے", "وہ تمہیں پانی دیتا ہے", "وہ تمہیں ہدایت دیتا ہے"], answer: 1 },
+      { id: 3, question: "تخیل کا مطلب کیا ہے؟", options: ["انگور", "زیتون", "کھجور کے درخت", "فصلیں"], answer: 2 },
+      { id: 4, question: "زیتون کا ترجمہ ہے؟", options: ["انگور", "زیتون", "کھجور", "شہد"], answer: 1 },
+      { id: 5, question: "سَخَّرَ لَكُمُ الَّيْلَ وَالنَّهَارَ کا مفہوم کیا ہے؟", options: ["رات اور دن پیدا کیے", "رات اور دن کو تمہارے تابع کیا", "رات کو ختم کیا", "دن کو روشن کیا"], answer: 1 },
+      { id: 6, question: "نجوم کا مطلب ہے؟", options: ["سورج", "چاند", "ستارے", "بادل"], answer: 2 },
+      { id: 7, question: "عدل کا ترجمہ کیا ہے؟", options: ["ظلم", "انصاف", "نیکی", "صبر"], answer: 1 },
+      { id: 8, question: "إحسان کا مطلب کیا ہے؟", options: ["برائی", "نیکی بھلائی", "مزا", "ظلم"], answer: 1 },
+      { id: 9, question: "شِفَاءٌ کا ترجمہ کیا ہے؟", options: ["بیماری", "دوا", "شفاء", "درد"], answer: 2 },
+      { id: 10, question: "بُطُونٌ کا مطلب کیا ہے؟", options: ["دل", "آنکھیں", "پیٹ", "ہاتھ"], answer: 2 },
+      { id: 11, question: "يَخْرُجُ مِن بُطُونِهَا شَرَابٌ کا مفہوم کیا ہے؟", options: ["پانی نکلتا ہے زمین سے", "دودھ نکلتا ہے جانوروں سے", "مشروب نکلتا ہے شہد کی مکھی کے پیٹ سے", "خون نکلتا ہے انسان سے"], answer: 2 },
+      { id: 12, question: "يَعْبُدُونَ کا مطلب ہے؟", options: ["وہ کھیلتے ہیں", "وہ عبادت کرتے ہیں", "وہ سوتے ہیں", "وہ کھاتے ہیں"], answer: 1 },
+      { id: 13, question: "مَلِكٌ کا ترجمہ کیا ہے؟", options: ["وہ دیکھتا ہے", "وہ دیتا ہے", "وہ مالک ہے", "وہ سنتا ہے"], answer: 2 },
+      { id: 14, question: "سَمْعٌ کا مطلب ہے؟", options: ["دیکھنا", "سننا / سماعت", "بولنا", "چلنا"], answer: 1 },
+      { id: 15, question: "أَبْصَارٌ کا ترجمہ کیا ہے؟", options: ["دل", "ہاتھ", "آنکھیں / بصارت", "زبان"], answer: 2 },
+      { id: 16, question: "أَفْئِدَةٌ کا مطلب ہے؟", options: ["ہاتھ", "دل", "آنکھیں", "پیر"], answer: 1 },
+      { id: 17, question: "تَشْكُرُونَ کا ترجمہ کیا ہے؟", options: ["مت شکر کرتے ہو", "مت کھاتے ہو", "مت سوتے ہو", "مت بھاگتے ہو"], answer: 0 },
+      { id: 18, question: "يَنْهَىٰ عَنِ الْفَحْشَاءِ کا مفہوم کیا ہے؟", options: ["نیکی کا حکم دیتا ہے", "روکتا ہے برائی سے", "رزق دیتا ہے", "ہدایت دیتا ہے"], answer: 1 },
+      { id: 19, question: "بَغْيٌ کا مطلب ہے؟", options: ["انصاف", "نیکی", "ظلم / سرکشی", "صبر"], answer: 2 },
+      { id: 20, question: "لَعَلَّكُمْ تَذَكَّرُونَ کا ترجمہ کیا ہے؟", options: ["تاکہ تم کامیاب ہو", "تاکہ تم سوچو", "تاکہ تم نصیحت حاصل کرو", "تاکہ تم جیتو"], answer: 2 },
+      { id: 21, question: "مَا لَهُم مِّن دُونِهِ مِن وَلِيٍّ کا مفہوم کیا ہے؟", options: ["ان کے بہت سے مددگار ہیں", "اللہ کے سوا ان کا کوئی مددگار نہیں", "وہ خود اپنے مددگار ہیں", "ان کے دوست ہیں"], answer: 1 },
+      { id: 22, question: "غَدَوْةٌ کا ترجمہ ہے؟", options: ["شام", "رات", "صبح", "دوپہر"], answer: 2 },
+      { id: 23, question: "عَشِيٌّ کا مطلب کیا ہے؟", options: ["صبح", "شام", "دوپہر", "رات"], answer: 1 },
+      { id: 24, question: "يُرِيدُونَ کا ترجمہ کیا ہے؟", options: ["وہ سوتے ہیں", "وہ چاہتے ہیں", "وہ بھاگتے ہیں", "وہ کھاتے ہیں"], answer: 1 },
+      { id: 25, question: "أُولَٰئِكَ يَدْخُلُونَ الْجَنَّةَ کا مفہوم کیا ہے؟", options: ["وہ دنیا میں رہتے ہیں", "وہ جنت میں داخل ہوں گے", "وہ زمین کے مالک ہیں", "وہ سفر کرتے ہیں"], answer: 1 },
+      { id: 26, question: "شَعَائِرٌ کا مطلب ہے؟", options: ["کتابیں", "نشانیاں / علامات", "لوگ", "راستے"], answer: 1 },
+      { id: 27, question: "تَقْوَىٰ کا ترجمہ کیا ہے؟", options: ["علم", "عبادت", "پرہیزگاری", "صبر"], answer: 2 },
+      { id: 28, question: "قُلُوبٌ کا مطلب کیا ہے؟", options: ["ہاتھ", "آنکھیں", "دل", "کان"], answer: 2 },
+      { id: 29, question: "يُدَافِعُ کا ترجمہ ہے؟", options: ["وہ سوتا ہے", "وہ دفاع کرتا ہے", "وہ کھاتا ہے", "وہ بھاگتا ہے"], answer: 1 },
+      { id: 30, question: "خَوَّانٌ کا مطلب ہے؟", options: ["سچا", "بہادر", "خیانت کرنے والا", "غنی"], answer: 2 },
+      { id: 31, question: "يَسِيرُوا فِي الْأَرْضِ کا مفہوم کیا ہے؟", options: ["وہ کھاتے ہیں", "وہ چھپتے ہیں زمین میں", "وہ زمین میں سفر کرتے ہیں", "وہ زمین بناتے ہیں"], answer: 2 },
+      { id: 32, question: "آذَانٌ کا مطلب کیا ہے؟", options: ["آنکھیں", "دل", "کان", "ہاتھ"], answer: 2 },
+      { id: 33, question: "لَغْوٌ کا ترجمہ کیا ہے؟", options: ["اچھی بات", "سچی بات", "فضول بات", "اہم بات"], answer: 2 },
+      { id: 34, question: "بَنُونَ کا مطلب کیا ہے؟", options: ["بیٹیاں", "بیٹے / اولاد", "والدین", "دوست"], answer: 1 },
+      { id: 35, question: "مَتَاعُ الدُّنْيَا کا مفہوم کیا ہے؟", options: ["ہمیشہ رہنے والی نعمت", "دنیا کا عارضی فائدہ", "آخرت کی کامیابی", "جنت"], answer: 1 },
+      { id: 36, question: "أَبْقَىٰ کا مطلب ہے؟", options: ["ختم ہونے والا", "ہمیشہ باقی رہنے والا", "کمزور", "عارضی"], answer: 1 },
+      { id: 37, question: "فَسَادٌ کا ترجمہ کیا ہے؟", options: ["اصلاح", "نیکی", "فساد / بگاڑ", "علم"], answer: 2 },
+      { id: 38, question: "عُلُوٌّ کا مطلب ہے؟", options: ["عاجزی", "تکبر / سرکشی", "صبر", "نیکی"], answer: 1 },
+      { id: 39, question: "يُجَاهِدُ کا ترجمہ ہے؟", options: ["وہ سوتا ہے", "وہ کھاتا ہے", "وہ جہاد / کوشش کرتا ہے", "وہ بھاگتا ہے"], answer: 2 },
+      { id: 40, question: "إِنَّ اللَّهَ لَغَنِيٌّ عَنِ الْعَالَمِينَ کا مفہوم کیا ہے؟", options: ["اللہ محتاج ہے", "اللہ دنیا کا محتاج ہے", "اللہ تمام جہانوں سے بے نیاز ہے", "صرف انسانوں کا محتاج ہے"], answer: 2 },
+      { id: 41, question: "فَاسِقٌ کا ترجمہ ہے؟", options: ["نیکوکار", "گناہگار / نافرمان", "مومن", "سردار"], answer: 1 },
+      { id: 42, question: "سُبُلٌ کا مطلب ہے؟", options: ["راستے / طریقے", "بیماری", "دھوکہ", "موت"], answer: 0 },
+      { id: 43, question: "مُحْسِنِينَ سے کیا مراد ہے؟", options: ["مشرک", "منافق", "نیکوکار / بھلائی کرنے والے", "کافر"], answer: 2 },
+      { id: 44, question: "غُرُورٌ کا ترجمہ کیا ہے؟", options: ["برکت", "سخت", "روشن", "دھوکہ / فریب"], answer: 3 },
+      { id: 45, question: "خِيَرَةٌ کا مطلب ہے؟", options: ["معاملہ / اختیار", "ایمان", "عذاب", "نصیحت"], answer: 0 },
+      { id: 46, question: "مُبِينٌ کا ترجمہ کیا ہے؟", options: ["واضح / ظاہر", "جادو", "گمراہی", "خوف"], answer: 0 },
+      { id: 47, question: "ضَرَبْنَا کا مطلب کیا ہے؟", options: ["اس نے دیا", "ہم نے بیان کی / مثال دی", "ہم نے فیصلہ کیا", "ہم نے روکا"], answer: 1 },
+      { id: 48, question: "يَقْبِضُ کا ترجمہ کیا ہے؟", options: ["وہ کہتا ہے", "وہ امید رکھتا ہے", "وہ جان قبض کرتا ہے", "وہ انکار کرتا ہے"], answer: 2 },
+      { id: 49, question: "لَنُدْخِلَنَّهُمْ کا مطلب ہے؟", options: ["ہم یقیناً داخل کریں گے", "وہ بدلہ دیتا ہے", "وہ یقین رکھتے ہیں", "وہ آتے ہیں"], answer: 0 },
+      { id: 50, question: "يَتَذَكَّرُونَ کا ترجمہ کیا ہے؟", options: ["وہ غور و فکر کرتے ہیں", "وہ نصیحت پکڑتے ہیں", "وہ نافرمانی کرتے ہیں", "وہ عذاب دیتے ہیں"], answer: 1 },
+      { id: 51, question: "أُسْوَةٌ حَسَنَةٌ کا مطلب ہے؟", options: ["واضح دلیل", "سخت عذاب", "بہترین نمونہ", "کتاب مبارک"], answer: 2 },
+      { id: 52, question: "أُولُو الْأَلْبَابِ کا ترجمہ ہے؟", options: ["عقل والے لوگ", "ایمان والے لوگ", "مشرک مرد اور عورتیں", "نافرمان لوگ"], answer: 0 },
+      { id: 53, question: "لِّيَدَّبَّرُوا آيَاتِهِ کا ترجمہ کیا ہے؟", options: ["تاکہ وہ نماز قائم کریں", "تاکہ وہ زکوۃ دیں", "تاکہ وہ ہدایت پائیں", "تاکہ وہ اس کی آیات پر غور کریں"], answer: 3 },
+      { id: 54, question: "هَٰؤُلَاءِ کس کے لیے استعمال ہوتا ہے؟", options: ["وہ سب (بعید)", "وہ ایک (واحد)", "یہ سب لوگ (جمع قریب)", "ہم سب"], answer: 2 },
+      { id: 55, question: "تَوَفَّىٰ کا مطلب ہے؟", options: ["وہ موت دیتا ہے / جان قبض کرتا ہے", "وہ زندگی دیتا ہے", "وہ توبہ قبول کرتا ہے", "وہ عذاب دیتا ہے"], answer: 0 },
+      { id: 56, question: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا کا ترجمہ کیا ہے؟", options: ["اور جن لوگوں نے ہمارے لیے جہد کی ہم یقیناً انہیں اپنے راستے دکھائیں گے", "اور جو لوگ ایمان لائے ان کے لیے جنت ہے", "بے شک اللہ کا خوف ضروری ہے", "اور اللہ توبہ قبول کرنے والا ہے"], answer: 0 },
+      { id: 57, question: "يُوقِنُونَ کا مطلب کیا ہے؟", options: ["وہ عمل کرتے ہیں", "وہ یقین رکھتے ہیں", "وہ نماز پڑھتے ہیں", "وہ ڈرتے ہیں"], answer: 1 },
+      { id: 58, question: "مَّا وَعَدَنَا اللَّهُ وَرَسُولُهُ إِلَّا غُرُورًا کا ترجمہ کیا ہے؟", options: ["اللہ کا وعدہ سچا ہے", "رسول اللہ ہمارے لیے بہترین نمونہ ہیں", "اللہ مومنوں کو معاف کر دے گا", "اللہ اور اس کے رسول نے ہم سے محض دھوکے کا وعدہ کیا تھا"], answer: 3 },
+      { id: 59, question: "حِينَ کا ترجمہ کیا ہے؟", options: ["وقت / دوران", "کب", "کیوں", "کہاں"], answer: 0 },
+      { id: 60, question: "يَعْصِي کا مطلب ہے؟", options: ["وہ اطاعت کرتا ہے", "وہ فیصلہ کرتا ہے", "وہ نافرمانی کرتا ہے", "وہ مدد کرتا ہے"], answer: 2 },
+      { id: 61, question: "يَوْمَ لَا تُظْلَمُ نَفْسٌ شَيْئًا کا مفہوم کیا ہے؟", options: ["اس دن کسی پر ظلم نہیں ہوگا", "اس دن سب کو سزا ملے گی", "اس دن کوئی حساب نہیں ہوگا", "اس دن سب آزاد ہوں گے"], answer: 0 },
+      { id: 62, question: "إِنَّ اللَّهَ سَرِيعُ الْحِسَابِ کا ترجمہ کیا ہے؟", options: ["بے شک اللہ معاف کرنے والا ہے", "بے شک اللہ حساب لینے میں تیز ہے", "بے شک اللہ دیر سے حساب لیتا ہے", "بے شک اللہ حساب نہیں لیتا"], answer: 1 },
+      { id: 63, question: "كَذَّابٌ کا مطلب کیا ہے؟", options: ["سچا", "جھوٹا", "صابر", "امیر"], answer: 1 },
+      { id: 64, question: "مُسْرِفٌ کا مطلب کیا ہے؟", options: ["صبر کرنے والا", "حد سے بڑھنے والا", "عبادت کرنے والا", "علم والا"], answer: 1 },
+      { id: 65, question: "مَعْذِرَةٌ کا ترجمہ ہے؟", options: ["سزا", "عذر", "انعام", "دعا"], answer: 1 },
+      { id: 66, question: "لَعْنَةٌ کا مطلب کیا ہے؟", options: ["رحمت", "مغفرت", "لعنت", "ہدایت"], answer: 2 },
+      { id: 67, question: "وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ کا مفہوم کیا ہے؟", options: ["وہ کچھ نہیں کر سکتا", "وہ ہر چیز پر قادر ہے", "وہ صرف انسانوں پر قادر ہے", "وہ صرف زمین پر قادر ہے"], answer: 1 },
+      { id: 68, question: "رِيَاحٌ کا مطلب کیا ہے؟", options: ["بارش", "ہوائیں", "پہاڑ", "درخت"], answer: 1 },
+      { id: 69, question: "بَصَائِرُ کا ترجمہ کیا ہے؟", options: ["آنکھیں", "بصیرت / روشن دلائل", "روشنی", "آوازیں"], answer: 1 },
+      { id: 70, question: "مُجَاهِدِينَ کا مطلب کیا ہے؟", options: ["عبادت کرنے والے", "جہاد کرنے والے", "سوئے ہوئے", "پڑھنے والے"], answer: 1 },
+      { id: 71, question: "صَابِرِينَ کا ترجمہ کیا ہے؟", options: ["جلدی کرنے والے", "صبر کرنے والے", "جھوٹ بولنے والے", "ہنسنے والے"], answer: 1 },
+      { id: 72, question: "صَادِقُونَ کا مطلب کیا ہے؟", options: ["جھوٹے", "سچے", "کمزور", "امیر"], answer: 1 },
+      { id: 73, question: "أَصْوَاتٌ کا ترجمہ کیا ہے؟", options: ["باتیں", "آوازیں", "خیالات", "فیصلے"], answer: 1 },
+      { id: 74, question: "نِسَاءٌ کا مطلب کیا ہے؟", options: ["مرد", "بچے", "عورتیں", "قوم"], answer: 2 },
+      { id: 75, question: "وَلَا تَلْمِزُوا أَنفُسَكُمْ کا مفہوم کیا ہے؟", options: ["اپنے آپ کو اچھا سمجھو", "ایک دوسرے پر عیب نہ لگاؤ", "ایک دوسرے کی مدد کرو", "ایک دوسرے کو سکھاؤ"], answer: 1 },
+      { id: 76, question: "وَلَا تَنَابَزُوا بِالْأَلْقَابِ کا مطلب کیا ہے؟", options: ["ایک دوسرے کو برے القاب سے نہ پکارو", "اچھے نام رکھو", "نام بدل دو", "احترام کرو"], answer: 0 },
+      { id: 77, question: "إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ کا مفہوم کیا ہے؟", options: ["سب انسان برابر ہیں", "مومن آپس میں بھائی بھائی ہیں", "صرف امیر بھائی ہیں", "صرف غریب بھائی ہیں"], answer: 1 },
+      { id: 78, question: "يُوقِنُونَ کا مطلب کیا ہے؟", options: ["شک کرتے ہیں", "یقین رکھتے ہیں", "بھول جاتے ہیں", "ڈرتے ہیں"], answer: 1 },
+      { id: 79, question: "نَبْلُوَنَّكُم کا مطلب کیا ہے؟", options: ["ہم تمہیں چھوڑ دیں گے", "ہم تمہیں آزمائیں گے", "ہم تمہیں سکھائیں گے", "ہم تمہیں بلائیں گے"], answer: 1 },
+      { id: 80, question: "صَدُّوا عَن سَبِيلِ اللَّهِ کا مفہوم کیا ہے؟", options: ["اللہ کے راستے پر چلنا", "اللہ کے راستے سے روکنا", "اللہ سے دعا کرنا", "اللہ کا ذکر کرنا"], answer: 1 },
+      { id: 81, question: "فَتَعَالَى اللَّهُ الْمَلِكُ الْحَقُّ کا ترجمہ کیا ہے؟", options: ["پس بلند و برتر ہے اللہ جو سچا بادشاہ ہے", "اللہ نے زمین کو بلند کیا", "اللہ نے موسیٰ کو بادشاہ بنایا", "اللہ نے تخت کو بلند کیا"], answer: 0 },
+      { id: 82, question: "وَنَجَّيْنَا مُوسَىٰ وَمَن مَّعَهُ أَجْمَعِينَ کا ترجمہ کیا ہے؟", options: ["اور ہم نے موسیٰ اور ان کے تمام ساتھیوں کو نجات دے دی", "ہم نے موسیٰ کو تخت دیا", "ہم نے موسیٰ کو قوم پر حاکم بنایا", "ہم نے موسیٰ کو سزا دی"], answer: 0 },
+      { id: 83, question: "إِلَّا مَنْ أَتَى اللَّهَ بِقَلْبٍ سَلِيمٍ کا ترجمہ کیا ہے؟", options: ["مگر وہ جو قلب سلیم کے ساتھ اللہ کی بارگاہ میں حاضر ہوا", "سوائے اس کے جو اللہ کے پاس تخت کے ساتھ آیا", "سوائے اس کے جو اللہ کے پاس قوم کے ساتھ آیا", "سوائے اس کے جو مال کے ساتھ آیا"], answer: 0 },
+      { id: 84, question: "وَمِنْ آيَاتِهِ خَلْقُ السَّمَاوَاتِ وَالْأَرْضِ وَاخْتِلَافُ أَلْسِنَتِكُمْ وَأَلْوَانِكُمْ کا ترجمہ کیا ہے؟", options: ["اور اس کی نشانیوں میں سے آسمانوں و زمین کی تخلیق اور تمہاری زبانوں اور تمہارے رنگوں کا اختلاف بھی ہے", "نشانیوں میں تخت اور قوم ہے", "نشانیوں میں موسیٰ اور ہارون ہیں", "نشانیوں میں نجات اور غرق کرنا ہے"], answer: 0 },
+      { id: 85, question: "سُلْطَانٌ کا ترجمہ کیا ہے؟", options: ["وزیر", "صاحبِ اختیار / سند / دلیل", "قوم", "تخت"], answer: 1 },
+      { id: 86, question: "مَلَأٌ کا مطلب کیا ہے؟", options: ["سردار / درباری", "قوم", "مائیں", "زبانیں"], answer: 0 },
+      { id: 87, question: "الْعَرْشُ کا ترجمہ کیا ہے؟", options: ["تخت", "دل", "رنگ", "زمین"], answer: 0 },
+      { id: 88, question: "عَالٍ سے کیا مراد ہے؟", options: ["عاجز", "سرکش / مغرور / متکبر", "دین دار لوگ", "مخلص"], answer: 1 },
+      { id: 89, question: "أَغْرَقْنَا کا مطلب کیا ہے؟", options: ["ہم نے نجات دی", "ہم نے غرق کیا / ڈبو دیا", "ہم نے فیصلہ کیا", "ہم نے مدد کی"], answer: 1 },
+      { id: 90, question: "أَجْمَعِينَ کا ترجمہ کیا ہے؟", options: ["چند لوگ", "سب کے سب / تمام", "قوم", "دشمن"], answer: 1 },
+      { id: 91, question: "قَوْمٌ کا مطلب کیا ہے؟", options: ["سردار", "قوم / گروہ", "مائیں", "زبانیں"], answer: 1 },
+      { id: 92, question: "يَوْمَئِذٍ کا ترجمہ کیا ہے؟", options: ["اس دن", "کل", "ہفتہ", "مہینہ"], answer: 0 },
+      { id: 93, question: "أَمِينٌ کا مطلب کیا ہے؟", options: ["امانت دار / قابلِ اعتماد", "دشمن", "عاجز", "دین دار"], answer: 0 },
+      { id: 94, question: "الظُّلَّةُ کا ترجمہ کیا ہے؟", options: ["زمین", "سائے دار بادل / سایہ", "تخت", "درخت"], answer: 1 },
+      { id: 95, question: "أَلْوَانٌ کا مطلب کیا ہے؟", options: ["زبانیں", "رنگ", "دلائل", "قوم"], answer: 1 },
+      { id: 96, question: "أَلْسِنَةٌ کا ترجمہ کیا ہے؟", options: ["زبانیں", "مائیں", "سردار", "درخت"], answer: 0 },
+      { id: 97, question: "قَلْبٌ کا مطلب کیا ہے؟", options: ["دل", "تخت", "قوم", "رنگ"], answer: 0 },
+      { id: 98, question: "سَلِيمٌ کا ترجمہ کیا ہے؟", options: ["محفوظ / بے عیب / سلامتی والا", "عاجز", "دشمن", "دین دار"], answer: 0 },
+      { id: 99, question: "شَاهِدٌ کا مطلب کیا ہے؟", options: ["گواہ", "دشمن", "سردار", "عاجز"], answer: 0 },
+      { id: 100, question: "يَا أَيُّهَا النَّبِيُّ إِنَّا أَرْسَلْنَاكَ شَاهِدًا وَمُبَشِّرًا وَنَذِيرًا کا ترجمہ کیا ہے؟", options: ["اے نبی! ہم نے آپ کو گواہ بنا کر، خوشخبری دینے والا اور ڈرانے والا بنا کر بھیجا ہے", "اے نبی! ہم نے آپ کو تخت دیا", "اے نبی! ہم نے آپ کو قوم پر حاکم بنایا", "اے نبی! ہم نے آپ کو نجات دی"], answer: 0 }
+    ];
+
+    // State Variables
+    let currentQuestions = [...rawData];
+    let currentIndex = 0;
+    let userAnswers = {};
+    let bookmarks = JSON.parse(localStorage.getItem('fehm_bookmarks') || '[]');
+    let wrongAnswers = JSON.parse(localStorage.getItem('fehm_wrongs') || '[]');
+    let quizMode = 'practice';
+    let filterBookmarkedOnly = false;
+    let timerInterval = null;
+    let secondsElapsed = 0;
+
+    // Elements
+    const qText = document.getElementById('question-text');
+    const qTag = document.getElementById('question-tag');
+    const optionsGrid = document.getElementById('options-container');
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationText = document.getElementById('explanation-text');
+    const dropdown = document.getElementById('question-dropdown');
+    const bCount = document.getElementById('bookmark-count');
+    const wCount = document.getElementById('wrong-count');
+    const pBar = document.getElementById('progress-bar');
+
+    // Initialize App
+    function init() {
+      populateDropdown();
+      updateBookmarksUI();
+      updateStats();
+      startTimer();
+      renderQuestion();
+
+      // Keyboard listener
+      document.addEventListener('keydown', handleKeyPress);
+    }
+
+    function populateDropdown() {
+      dropdown.innerHTML = '';
+      currentQuestions.forEach((q, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `Q${q.id}: ${q.question.substring(0, 30)}...`;
+        dropdown.appendChild(opt);
+      });
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      secondsElapsed = 0;
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function renderQuestion() {
+      if (currentQuestions.length === 0) {
+        qText.textContent = "کوئی سوالات دستیاب نہیں ہیں۔";
+        optionsGrid.innerHTML = '';
+        return;
+      }
+
+      const q = currentQuestions[currentIndex];
+      qTag.textContent = `سوال ${currentIndex + 1} / ${currentQuestions.length}`;
+      qText.textContent = q.question;
+      dropdown.value = currentIndex;
+
+      // Update Bookmark Icon
+      const isBookmarked = bookmarks.includes(q.id);
+      document.getElementById('bookmark-btn').textContent = isBookmarked ? '🔖' : '🏷️';
+
+      // Hide Answer & Explanation by default
+      explanationBox.classList.add('hidden');
+
+      // Process options
+      optionsGrid.innerHTML = '';
+      let opts = q.options.map((opt, index) => ({ text: opt, originalIndex: index }));
+
+      if (document.getElementById('shuffle-options').checked) {
+        opts = opts.sort(() => Math.random() - 0.5);
+      }
+
+      const labels = ['A', 'B', 'C', 'D'];
+
+      opts.forEach((optObj, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `w-full text-right p-4 rounded-xl border transition flex items-center justify-between font-urdu text-lg ${
+          userAnswers[q.id] === optObj.originalIndex 
+            ? 'bg-teal/20 border-teal text-teal font-bold' 
+            : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-700/50'
+        }`;
+
+        // Feedback formatting for Practice Mode
+        if (quizMode === 'practice' && userAnswers[q.id] !== undefined) {
+          if (optObj.originalIndex === q.answer) {
+            btn.className = 'w-full text-right p-4 rounded-xl border bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold flex items-center justify-between font-urdu text-lg';
+          } else if (userAnswers[q.id] === optObj.originalIndex) {
+            btn.className = 'w-full text-right p-4 rounded-xl border bg-red-500/20 border-red-500 text-red-300 flex items-center justify-between font-urdu text-lg';
+          }
+        }
+
+        btn.onclick = () => selectOption(q.id, optObj.originalIndex);
+        btn.innerHTML = `
+          <span>${optObj.text}</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded font-poppins font-normal">${labels[idx]}</span>
+        `;
+        optionsGrid.appendChild(btn);
+      });
+
+      // Show explanation if answered in practice mode
+      if (quizMode === 'practice' && userAnswers[q.id] !== undefined) {
+        showExplanation();
+      }
+
+      // Update progress
+      const progress = ((currentIndex + 1) / currentQuestions.length) * 100;
+      pBar.style.width = `${progress}%`;
+    }
+
+    function selectOption(qId, optionIdx) {
+      userAnswers[qId] = optionIdx;
+      const q = rawData.find(item => item.id === qId);
+
+      if (optionIdx !== q.answer) {
+        if (!wrongAnswers.includes(qId)) wrongAnswers.push(qId);
+      } else {
+        wrongAnswers = wrongAnswers.filter(id => id !== qId);
+      }
+
+      localStorage.setItem('fehm_wrongs', JSON.stringify(wrongAnswers));
+      updateStats();
+      renderQuestion();
+    }
+
+    function toggleAnswer() {
+      const q = currentQuestions[currentIndex];
+      if (userAnswers[q.id] === undefined) {
+        userAnswers[q.id] = q.answer;
+        updateStats();
+      }
+      showExplanation();
+      renderQuestion();
+    }
+
+    function showExplanation() {
+      const q = currentQuestions[currentIndex];
+      explanationText.textContent = `صحیح جواب: "${q.options[q.answer]}"۔`;
+      explanationBox.classList.remove('hidden');
+    }
+
+    function navigateQuestion(direction) {
+      if (currentIndex + direction >= 0 && currentIndex + direction < currentQuestions.length) {
+        currentIndex += direction;
+        renderQuestion();
+      }
+    }
+
+    function jumpToQuestion(idx) {
+      currentIndex = parseInt(idx);
+      renderQuestion();
+    }
+
+    function toggleBookmark() {
+      const q = currentQuestions[currentIndex];
+      if (bookmarks.includes(q.id)) {
+        bookmarks = bookmarks.filter(id => id !== q.id);
+      } else {
+        bookmarks.push(q.id);
+      }
+      localStorage.setItem('fehm_bookmarks', JSON.stringify(bookmarks));
+      updateBookmarksUI();
+      renderQuestion();
+    }
+
+    function updateBookmarksUI() {
+      bCount.textContent = bookmarks.length;
+    }
+
+    function toggleBookmarkFilter() {
+      filterBookmarkedOnly = document.getElementById('filter-bookmarks').checked;
+      if (filterBookmarkedOnly) {
+        currentQuestions = rawData.filter(q => bookmarks.includes(q.id));
+      } else {
+        currentQuestions = [...rawData];
+      }
+      currentIndex = 0;
+      populateDropdown();
+      renderQuestion();
+    }
+
+    function shuffleCurrentSet() {
+      currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
+      currentIndex = 0;
+      populateDropdown();
+      renderQuestion();
+    }
+
+    function startQuickQuiz(amount) {
+      currentQuestions = [...rawData].sort(() => Math.random() - 0.5).slice(0, amount);
+      currentIndex = 0;
+      userAnswers = {};
+      populateDropdown();
+      updateStats();
+      renderQuestion();
+    }
+
+    function reviewWrongAnswers() {
+      if (wrongAnswers.length === 0) {
+        alert("🎉 کوئی غلط جواب موجود نہیں ہے!");
+        return;
+      }
+      currentQuestions = rawData.filter(q => wrongAnswers.includes(q.id));
+      currentIndex = 0;
+      populateDropdown();
+      renderQuestion();
+    }
+
+    function updateStats() {
+      const attempted = Object.keys(userAnswers).length;
+      let correct = 0;
+
+      Object.keys(userAnswers).forEach(qId => {
+        const q = rawData.find(item => item.id == qId);
+        if (q && userAnswers[qId] === q.answer) {
+          correct++;
+        }
+      });
+
+      const percentage = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+      document.getElementById('stat-attempted').textContent = attempted;
+      document.getElementById('stat-score').textContent = `${percentage}%`;
+      wCount.textContent = wrongAnswers.length;
+    }
+
+    function changeMode() {
+      quizMode = document.getElementById('quiz-mode').value;
+      if (quizMode === 'random') {
+        shuffleCurrentSet();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      document.documentElement.classList.toggle('light');
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'ArrowRight') navigateQuestion(-1);
+      if (e.key === 'ArrowLeft') navigateQuestion(1);
+      if (e.key === ' ') { e.preventDefault(); toggleAnswer(); }
+      if (['1', '2', '3', '4'].includes(e.key)) {
+        const idx = parseInt(e.key) - 1;
+        const q = currentQuestions[currentIndex];
+        if (q && q.options[idx]) {
+          selectOption(q.id, idx);
+        }
+      }
+    }
+
+    // Launch Engine
+    init();
+  </script>
+</body>
+</html>
